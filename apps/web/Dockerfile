@@ -6,6 +6,7 @@ RUN corepack enable
 COPY package.json pnpm-workspace.yaml turbo.json tsconfig.base.json ./
 COPY apps/web/package.json apps/web/package.json
 COPY packages/db/package.json packages/db/package.json
+COPY packages/shared/package.json packages/shared/package.json
 
 RUN pnpm install --no-frozen-lockfile
 
@@ -21,6 +22,7 @@ COPY --from=deps /app/packages/db/node_modules ./packages/db/node_modules
 COPY package.json pnpm-workspace.yaml turbo.json tsconfig.base.json ./
 COPY apps/web apps/web
 COPY packages/db packages/db
+COPY packages/shared packages/shared
 
 RUN pnpm --filter @redbot/db prisma:generate
 RUN pnpm --filter @redbot/web build
