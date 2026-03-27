@@ -9,6 +9,8 @@ This runbook deploys the current monorepo architecture to Coolify with separate 
 - Bot Gateway (`apps/bot-gateway`)
 - Worker (`apps/worker`)
 
+> Recommended pattern now: one **Compose application** for app tier (`web + bot-gateway + worker`) and separate managed services for `postgres`, `redis`, and `lavalink`.
+
 ---
 
 ## 0) Prerequisites
@@ -88,6 +90,41 @@ Bot must reach `http://<lavalink-service-name>:2333` internally.
 ## 3) Deploy Application Services (Monorepo per-service)
 
 Create **three separate services** from the same repository/branch.
+
+### Alternative (Recommended): Single App-Tier Compose Application
+
+Instead of 3 separate app services, create one Docker Compose application in Coolify using:
+
+- `docker-compose.coolify-app.yml`
+
+This deploys:
+
+- `web`
+- `bot-gateway`
+- `worker`
+
+All three still connect to separate Coolify data services (`postgres`, `redis`, `lavalink`) via env vars.
+
+Required environment variables on the Compose app:
+
+```env
+NODE_ENV=production
+DATABASE_URL=postgresql://<user>:<password>@<postgres-service-name>:5432/<database>
+REDIS_HOST=<redis-service-name>
+REDIS_PORT=6379
+AUTH_DISCORD_ID=...
+AUTH_DISCORD_SECRET=...
+AUTH_SECRET=...
+AUTH_URL=https://dashboard.example.com
+AUTH_TRUST_HOST=true
+DISCORD_BOT_TOKEN=...
+LAVALINK_NODE_NAME=local
+LAVALINK_NODE_URL=<lavalink-service-name>:2333
+LAVALINK_NODE_AUTH=...
+CRITICAL_ALERT_WEBHOOK_URL=...
+```
+
+For the web domain, route `web` service port `3000` to your public domain in Coolify.
 
 ## 3.1 Web Service (`apps/web`)
 
@@ -172,9 +209,9 @@ Policy: deploy is blocked until migrations succeed.
 2. Redis up and healthy.
 3. Lavalink up and healthy.
 4. Run DB migrations (`pnpm deploy:db`).
-5. Deploy/update web.
-6. Deploy/update bot gateway.
-7. Deploy/update worker.
+5. Deploy/update app tier:
+   - either single Compose app (`docker-compose.coolify-app.yml`), or
+   - separate web + bot + worker services.
 
 ---
 
