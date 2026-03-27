@@ -4,14 +4,16 @@ import { createLogger } from "@redbot/shared";
 
 const logger = createLogger({ service: "bot-gateway" });
 
-const LAVALINK_NODE = {
-  name: "local",
-  url: "127.0.0.1:2333",
-  auth: "youshallnotpass"
-} as const;
+function getLavalinkNodeConfig() {
+  return {
+    name: process.env.LAVALINK_NODE_NAME ?? "local",
+    url: process.env.LAVALINK_NODE_URL ?? "127.0.0.1:2333",
+    auth: process.env.LAVALINK_NODE_AUTH ?? "youshallnotpass"
+  };
+}
 
 export function initializeShoukaku(client: Client): Shoukaku {
-  const shoukaku = new Shoukaku(new Connectors.DiscordJS(client), [LAVALINK_NODE], {
+  const shoukaku = new Shoukaku(new Connectors.DiscordJS(client), [getLavalinkNodeConfig()], {
     reconnectTries: 3,
     reconnectInterval: 5,
     restTimeout: 10
