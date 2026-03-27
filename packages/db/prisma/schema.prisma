@@ -86,6 +86,8 @@ model Guild {
   permissionOverrides PermissionOverride[]
   warnings            Warning[]
   timedActions        TimedAction[]
+  roleSnapshots       RolePersistenceSnapshot[]
+  reactionRoleMessages ReactionRoleMessage[]
 }
 
 model AllowlistedGuild {
@@ -139,4 +141,42 @@ model TimedAction {
   @@index([guildId, userId])
   @@index([guildId, status, expiresAt])
   @@index([guildId, actionType, status])
+}
+
+model RolePersistenceSnapshot {
+  guildId   String
+  userId    String
+  roleIds   String[]
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  guild     Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@id([guildId, userId])
+  @@index([guildId, userId])
+}
+
+model ReactionRoleMessage {
+  id        String                @id
+  guildId   String
+  channelId String
+  groupId   String?
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+  guild     Guild                 @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  mappings  ReactionRoleMapping[]
+
+  @@index([guildId])
+  @@index([guildId, groupId])
+  @@index([guildId, channelId])
+}
+
+model ReactionRoleMapping {
+  messageId String
+  emoji     String
+  roleId    String
+  createdAt DateTime            @default(now())
+  message   ReactionRoleMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@id([messageId, emoji])
+  @@index([messageId, roleId])
 }
