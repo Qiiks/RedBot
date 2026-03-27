@@ -5,9 +5,12 @@ import {
   type Client,
   type Interaction
 } from "discord.js";
+import { createLogger } from "@redbot/shared";
 import { checkRateLimit } from "../middleware/rateLimit";
 import { evaluateCommandAccess } from "../rbac";
 import { warnCommand } from "./warn";
+
+const logger = createLogger({ service: "bot-gateway" });
 
 export type CommandContext = {
   interaction: ChatInputCommandInteraction;
@@ -122,7 +125,12 @@ export function registerCommandRouter(client: Client): void {
       }
 
       await interaction.reply({ content: message, ephemeral: true });
-      console.error("Command handler failed", error);
+      logger.error("Command handler failed", {
+        commandName: interaction.commandName,
+        guildId: interaction.guildId,
+        userId: interaction.user.id,
+        error
+      });
     }
   });
 }

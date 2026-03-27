@@ -1,5 +1,8 @@
 import { Connectors, Shoukaku } from "shoukaku";
 import type { Client } from "discord.js";
+import { createLogger } from "@redbot/shared";
+
+const logger = createLogger({ service: "bot-gateway" });
 
 const LAVALINK_NODE = {
   name: "local",
@@ -15,11 +18,11 @@ export function initializeShoukaku(client: Client): Shoukaku {
   });
 
   shoukaku.on("ready", (nodeName) => {
-    console.log(`[music] Lavalink node ready: ${nodeName}`);
+    logger.info("Lavalink node ready", { nodeName });
   });
 
   shoukaku.on("error", (nodeName, error) => {
-    console.error(`[music] Lavalink node error (${nodeName}):`, error);
+    logger.error("Lavalink node error", { nodeName, error });
   });
 
   return shoukaku;

@@ -1,5 +1,8 @@
 import { db } from "@redbot/db";
+import { createLogger } from "@redbot/shared";
 import { LoadType, type Player, type Shoukaku, type Track } from "shoukaku";
+
+const logger = createLogger({ service: "bot-gateway" });
 
 type QueueFairness = "FIFO" | "ROUND_ROBIN";
 
@@ -252,7 +255,10 @@ export class MusicManager {
 
         await this.shoukaku.leaveVoiceChannel(guildId);
       } catch (error) {
-        console.error(`[music] idle timeout cleanup failed for guild ${guildId}:`, error);
+        logger.error("Music idle timeout cleanup failed", {
+          guildId,
+          error
+        });
       } finally {
         this.clearGuildState(guildId);
       }

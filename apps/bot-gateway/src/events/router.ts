@@ -1,5 +1,9 @@
 import type { Client, GuildMember } from "discord.js";
+import { createLogger } from "@redbot/shared";
+import { registerAutomodListener } from "./automod";
 import { restoreRoles } from "../roles/persistence";
+
+const logger = createLogger({ service: "bot-gateway" });
 
 function getAssignableRoleIds(member: GuildMember, roleIds: string[]): string[] {
   return roleIds.filter((roleId) => {
@@ -9,6 +13,8 @@ function getAssignableRoleIds(member: GuildMember, roleIds: string[]): string[] 
 }
 
 export function registerEventRouter(client: Client): void {
+  registerAutomodListener(client);
+
   client.on("guildMemberAdd", async (member) => {
     try {
       const restoredRoleIds = await restoreRoles(member.guild.id, member.id);
@@ -18,22 +24,26 @@ export function registerEventRouter(client: Client): void {
 
       const assignableRoleIds = getAssignableRoleIds(member, restoredRoleIds);
       if (assignableRoleIds.length === 0) {
-        console.log(
-          `Role restore skipped for guild=${member.guild.id} member=${member.id}: no assignable roles available`
-        );
+        logger.info("Role restore skipped: no assignable roles", {
+          guildId: member.guild.id,
+          userId: member.id
+        });
         return;
       }
 
       await member.roles.add(assignableRoleIds, "Role persistence restore on member join");
 
-      console.log(
-        `Restored ${assignableRoleIds.length} roles for guild=${member.guild.id} member=${member.id}`
-      );
+      logger.info("Roles restored on member join", {
+        guildId: member.guild.id,
+        userId: member.id,
+        restoredRoleCount: assignableRoleIds.length
+      });
     } catch (error) {
-      console.error(
-        `Failed to restore roles for guild=${member.guild.id} member=${member.id}`,
+      logger.error("Role restore failed", {
+        guildId: member.guild.id,
+        userId: member.id,
         error
-      );
+      });
     }
   });
 }

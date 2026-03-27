@@ -1,8 +1,12 @@
 import { db } from "@redbot/db";
+import { createLogger } from "@redbot/shared";
 import { Client, GatewayIntentBits } from "discord.js";
 import Redis from "ioredis";
 import { registerCommandRouter } from "./commands/router";
 import { registerEventRouter } from "./events/router";
+import { registerProcessAlertHandlers } from "./logging/alerts";
+
+const logger = createLogger({ service: "bot-gateway" });
 
 const token = process.env.DISCORD_BOT_TOKEN;
 
@@ -11,11 +15,12 @@ if (!token) {
 }
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers]
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages]
 });
 
 registerCommandRouter(client);
 registerEventRouter(client);
+registerProcessAlertHandlers("bot-gateway");
 
 const redisSubscriber = new Redis({
   host: process.env.REDIS_HOST ?? "127.0.0.1",
@@ -34,14 +39,17 @@ async function subscribeToGuildConfigUpdates(): Promise<void> {
 
   redisSubscriber.on("pmessage", (_pattern, channel, payload) => {
     const guildId = channel.split(":")[1] ?? "unknown";
-    console.log(`Received guild config update for guild=${guildId} payload=${payload}`);
+    logger.info("Received guild config update", {
+      guildId,
+      payload
+    });
   });
 }
 
 client.once("ready", async () => {
   await db.$queryRaw`SELECT 1`;
   await subscribeToGuildConfigUpdates();
-  console.log("Bot is online and connected to DB");
+  logger.info("Bot is online and connected to DB");
 });
 
 void client.login(token);
