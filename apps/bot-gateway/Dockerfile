@@ -1,8 +1,9 @@
-FROM node:20-alpine
+FROM node:20-slim
 
 WORKDIR /app
 
 RUN corepack enable
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 COPY package.json pnpm-workspace.yaml turbo.json tsconfig.base.json ./
 COPY pnpm-lock.yaml ./
