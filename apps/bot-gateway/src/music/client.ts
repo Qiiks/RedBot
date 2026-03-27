@@ -5,10 +5,13 @@ import { createLogger } from "@redbot/shared";
 const logger = createLogger({ service: "bot-gateway" });
 
 function getLavalinkNodeConfig() {
+  const secureRaw = process.env.LAVALINK_NODE_SECURE?.trim().toLowerCase();
+
   return {
     name: process.env.LAVALINK_NODE_NAME ?? "local",
     url: process.env.LAVALINK_NODE_URL ?? "127.0.0.1:2333",
-    auth: process.env.LAVALINK_NODE_AUTH ?? "youshallnotpass"
+    auth: process.env.LAVALINK_NODE_AUTH ?? "youshallnotpass",
+    secure: secureRaw === "true" || secureRaw === "1"
   };
 }
 
