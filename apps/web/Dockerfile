@@ -31,6 +31,7 @@ COPY apps/web apps/web
 COPY packages/db packages/db
 COPY packages/shared packages/shared
 
+RUN mkdir -p apps/web/public
 RUN rm -rf apps/web/.next
 RUN pnpm --filter @redbot/db prisma:generate
 RUN NODE_ENV=production pnpm --filter @redbot/web build
