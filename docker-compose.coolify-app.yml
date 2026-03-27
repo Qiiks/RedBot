@@ -18,6 +18,8 @@ services:
       AUTH_SECRET: ${AUTH_SECRET}
       AUTH_URL: ${AUTH_URL}
       AUTH_TRUST_HOST: ${AUTH_TRUST_HOST:-true}
+      NEXTAUTH_SECRET: ${AUTH_SECRET}
+      NEXTAUTH_URL: ${AUTH_URL}
     expose:
       - "3000"
 
