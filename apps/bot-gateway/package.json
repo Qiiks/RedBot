@@ -1,0 +1,22 @@
+{
+  "name": "@redbot/bot-gateway",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "echo \"lint not configured\"",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@redbot/db": "workspace:*",
+    "discord.js": "^14.16.3"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3"
+  }
+}

@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: redbot-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: redbot
+      POSTGRES_USER: redbot
+      POSTGRES_PASSWORD: redbot
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U redbot -d redbot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: redbot-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  lavalink:
+    image: ghcr.io/lavalink-devs/lavalink:4
+    container_name: redbot-lavalink
+    restart: unless-stopped
+    ports:
+      - "2333:2333"
+    environment:
+      _JAVA_OPTIONS: "-Xmx512M"
+      SERVER_PORT: 2333
+      LAVALINK_SERVER_PASSWORD: youshallnotpass
+      LAVALINK_SERVER_SOURCES_YOUTUBE: "true"
+
+volumes:
+  postgres_data:
+  redis_data:
