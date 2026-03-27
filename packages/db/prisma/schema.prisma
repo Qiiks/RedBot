@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum SubjectType {
+  USER
+  ROLE
+}
+
 model HealthProbe {
   id        String   @id @default(cuid())
   message   String   @default("ok")
@@ -58,4 +63,38 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Guild {
+  id                  String               @id
+  name                String
+  ownerId             String
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  allowlistedGuild    AllowlistedGuild?
+  permissionOverrides PermissionOverride[]
+}
+
+model AllowlistedGuild {
+  guildId   String   @id
+  createdAt DateTime @default(now())
+  guild     Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@index([guildId])
+}
+
+model PermissionOverride {
+  guildId     String
+  subjectId   String
+  subjectType SubjectType
+  command     String
+  allow       Boolean
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  guild       Guild      @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@id([guildId, subjectId, subjectType, command])
+  @@index([guildId, command])
+  @@index([guildId, subjectType, subjectId])
+  @@index([guildId, subjectType, allow, command])
 }
