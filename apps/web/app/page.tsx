@@ -1,8 +1,9 @@
-import { auth, signIn, signOut } from "@/auth";
+import { auth } from "@/auth";
 import Link from "next/link";
 
 export default async function HomePage(): Promise<JSX.Element> {
   const session = await auth();
+  const hasDiscordAuth = Boolean(process.env.AUTH_DISCORD_ID && process.env.AUTH_DISCORD_SECRET);
 
   if (session?.user) {
     return (
@@ -10,14 +11,9 @@ export default async function HomePage(): Promise<JSX.Element> {
         <h1>RedBot Dashboard</h1>
         <p>Signed in as {session.user.name ?? "Unknown User"}</p>
 
-        <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/" });
-          }}
-        >
-          <button type="submit">Sign out</button>
-        </form>
+        <p>
+          <a href="/api/auth/signout?callbackUrl=/">Sign out</a>
+        </p>
 
         <p>
           <Link href="/dashboard">Go to dashboard</Link>
@@ -30,14 +26,13 @@ export default async function HomePage(): Promise<JSX.Element> {
     <main>
       <h1>RedBot Dashboard</h1>
 
-      <form
-        action={async () => {
-          "use server";
-          await signIn("discord", { redirectTo: "/dashboard" });
-        }}
-      >
-        <button type="submit">Login with Discord</button>
-      </form>
+      {hasDiscordAuth ? (
+        <p>
+          <a href="/api/auth/signin/discord?callbackUrl=/dashboard">Login with Discord</a>
+        </p>
+      ) : (
+        <p>Discord auth is not configured yet.</p>
+      )}
     </main>
   );
 }

@@ -1,16 +1,11 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { db } from "@redbot/db";
-import NextAuth from "next-auth";
+import { getServerSession, type NextAuthOptions } from "next-auth";
 import Discord from "next-auth/providers/discord";
 
-function requireEnv(name: string): string {
-  const value = process.env[name];
-
-  if (!value) {
-    throw new Error(`${name} is required`);
-  }
-
-  return value;
+function getOptionalEnv(name: string): string | undefined {
+  const value = process.env[name]?.trim();
+  return value && value.length > 0 ? value : undefined;
 }
 
 declare module "next-auth" {
@@ -24,17 +19,24 @@ declare module "next-auth" {
   }
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(db),
+const discordClientId = getOptionalEnv("AUTH_DISCORD_ID");
+const discordClientSecret = getOptionalEnv("AUTH_DISCORD_SECRET");
+
+export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(db as never),
+  secret: getOptionalEnv("AUTH_SECRET") ?? getOptionalEnv("NEXTAUTH_SECRET"),
   session: {
     strategy: "database"
   },
-  providers: [
-    Discord({
-      clientId: requireEnv("AUTH_DISCORD_ID"),
-      clientSecret: requireEnv("AUTH_DISCORD_SECRET")
-    })
-  ],
+  providers:
+    discordClientId && discordClientSecret
+      ? [
+          Discord({
+            clientId: discordClientId,
+            clientSecret: discordClientSecret
+          })
+        ]
+      : [],
   pages: {
     signIn: "/"
   },
@@ -47,4 +49,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session;
     }
   }
-});
+};
+
+export function auth() {
+  return getServerSession(authOptions);
+}

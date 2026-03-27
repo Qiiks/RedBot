@@ -1,10 +1,14 @@
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 import { getDashboardGuilds } from "@/app/dashboard/actions";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function DashboardPage(): Promise<JSX.Element> {
+  if (!process.env.AUTH_DISCORD_ID || !process.env.AUTH_DISCORD_SECRET) {
+    redirect("/");
+  }
+
   const session = await auth();
 
   if (!session?.user) {
@@ -43,14 +47,9 @@ export default async function DashboardPage(): Promise<JSX.Element> {
         )}
       </section>
 
-      <form
-        action={async () => {
-          "use server";
-          await signOut({ redirectTo: "/" });
-        }}
-      >
-        <button type="submit">Sign out</button>
-      </form>
+      <p>
+        <a href="/api/auth/signout?callbackUrl=/">Sign out</a>
+      </p>
     </main>
   );
 }

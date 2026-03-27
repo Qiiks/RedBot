@@ -2,7 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   output: "standalone",
-  transpilePackages: ["@redbot/db"],
+  experimental: {
+    outputFileTracingRoot: new URL("../../", import.meta.url).pathname
+  },
+  transpilePackages: ["@redbot/db", "@redbot/shared"],
   images: {
     remotePatterns: [
       {

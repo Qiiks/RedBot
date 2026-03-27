@@ -18,16 +18,27 @@ function getRedisPublisher(): Redis {
   });
 }
 
+function assertDiscordAuthConfigured(): void {
+  if (!process.env.AUTH_DISCORD_ID || !process.env.AUTH_DISCORD_SECRET) {
+    throw new Error("Discord auth is not configured for this deployment.");
+  }
+}
+
 export async function updateGuildSettings(
   guildId: string,
   formData: FormData
 ): Promise<void> {
+  assertDiscordAuthConfigured();
+
   const session = await auth();
-  if (!session?.user?.id) {
+  const userId = session?.user?.id;
+
+  if (!userId) {
     redirect("/");
+    return;
   }
 
-  const guilds = await getManageableGuildsForUser(session.user.id);
+  const guilds = await getManageableGuildsForUser(userId);
   const targetGuild = guilds.find((guild) => guild.id === guildId);
 
   if (!targetGuild) {
@@ -55,7 +66,7 @@ export async function updateGuildSettings(
     create: {
       id: guildId,
       name: targetGuild.name,
-      ownerId: session.user.id
+      ownerId: userId
     },
     update: {
       name: targetGuild.name
@@ -87,7 +98,7 @@ export async function updateGuildSettings(
       `guild-config-update:${guildId}`,
       JSON.stringify({
         guildId,
-        updatedByUserId: session.user.id,
+        updatedByUserId: userId,
         updatedAt: new Date().toISOString()
       })
     );
@@ -97,21 +108,38 @@ export async function updateGuildSettings(
 }
 
 export async function getDashboardGuilds() {
+  assertDiscordAuthConfigured();
+
   const session = await auth();
-  if (!session?.user?.id) {
+  const userId = session?.user?.id;
+
+  if (!userId) {
     redirect("/");
+    return [];
   }
 
-  return getManageableGuildsForUser(session.user.id);
+  return getManageableGuildsForUser(userId);
 }
 
 export async function getGuildSettingsForDashboard(guildId: string) {
+  assertDiscordAuthConfigured();
+
   const session = await auth();
-  if (!session?.user?.id) {
+  const userId = session?.user?.id;
+
+  if (!userId) {
     redirect("/");
+    return {
+      guild: { id: guildId, name: "Unknown", icon: null },
+      settings: {
+        logChannelId: "",
+        contentSnapshotsEnabled: false,
+        musicQueueFairness: "ROUND_ROBIN" as const
+      }
+    };
   }
 
-  const guilds = await getManageableGuildsForUser(session.user.id);
+  const guilds = await getManageableGuildsForUser(userId);
   const targetGuild = guilds.find((guild) => guild.id === guildId);
 
   if (!targetGuild) {

@@ -5,4 +5,5 @@ dist
 .env
 .env.*
 coverage
-pnpm-lock.yaml
+!pnpm-lock.yaml
+packages/db/src/generated/

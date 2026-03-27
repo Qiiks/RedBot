@@ -8,6 +8,14 @@ type GuildSettingsPageProps = {
 };
 
 export default async function GuildSettingsPage({ params }: GuildSettingsPageProps): Promise<JSX.Element> {
+  if (!process.env.AUTH_DISCORD_ID || !process.env.AUTH_DISCORD_SECRET) {
+    return (
+      <main>
+        <p>Discord auth is not configured for this deployment.</p>
+      </main>
+    );
+  }
+
   const { guildId } = params;
   const { guild, settings } = await getGuildSettingsForDashboard(guildId);
 
