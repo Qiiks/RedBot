@@ -1,5 +1,7 @@
 import { auth, signOut } from "@/auth";
+import { getDashboardGuilds } from "@/app/dashboard/actions";
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function DashboardPage(): Promise<JSX.Element> {
@@ -10,6 +12,7 @@ export default async function DashboardPage(): Promise<JSX.Element> {
   }
 
   const user = session.user;
+  const guilds = await getDashboardGuilds();
 
   return (
     <main>
@@ -24,6 +27,21 @@ export default async function DashboardPage(): Promise<JSX.Element> {
           height={96}
         />
       ) : null}
+
+      <section>
+        <h2>Manageable Guilds</h2>
+        {guilds.length === 0 ? (
+          <p>No guilds with MANAGE_GUILD permission found.</p>
+        ) : (
+          <ul>
+            {guilds.map((guild) => (
+              <li key={guild.id}>
+                <Link href={`/dashboard/${guild.id}`}>{guild.name}</Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <form
         action={async () => {
