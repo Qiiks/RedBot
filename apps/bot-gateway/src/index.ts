@@ -1,6 +1,8 @@
 import { db } from "@redbot/db";
 import { Client, GatewayIntentBits } from "discord.js";
 import Redis from "ioredis";
+import { registerCommandRouter } from "./commands/router";
+import { registerEventRouter } from "./events/router";
 
 const token = process.env.DISCORD_BOT_TOKEN;
 
@@ -9,8 +11,11 @@ if (!token) {
 }
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds]
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers]
 });
+
+registerCommandRouter(client);
+registerEventRouter(client);
 
 const redisSubscriber = new Redis({
   host: process.env.REDIS_HOST ?? "127.0.0.1",
