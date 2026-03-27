@@ -23,6 +23,13 @@ enum TimedActionStatus {
   FAILED
 }
 
+enum AuditCategory {
+  MODERATION
+  MEMBER
+  SERVER
+  MESSAGE
+}
+
 model HealthProbe {
   id        String   @id @default(cuid())
   message   String   @default("ok")
@@ -88,6 +95,36 @@ model Guild {
   timedActions        TimedAction[]
   roleSnapshots       RolePersistenceSnapshot[]
   reactionRoleMessages ReactionRoleMessage[]
+  settings            GuildSettings?
+  auditEvents         AuditEvent[]
+}
+
+model GuildSettings {
+  guildId                 String   @id
+  logChannelId            String?
+  contentSnapshotsEnabled Boolean  @default(false)
+  logRetentionDays        Int      @default(180)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  guild                   Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@index([guildId])
+}
+
+model AuditEvent {
+  id        String        @id @default(cuid())
+  guildId   String
+  category  AuditCategory
+  action    String
+  actorId   String?
+  targetId  String?
+  metadata  Json          @db.JsonB
+  createdAt DateTime      @default(now())
+  guild     Guild         @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@index([guildId, createdAt])
+  @@index([guildId, category, createdAt])
+  @@index([guildId, action, createdAt])
 }
 
 model AllowlistedGuild {
