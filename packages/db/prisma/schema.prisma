@@ -12,6 +12,17 @@ enum SubjectType {
   ROLE
 }
 
+enum TimedActionType {
+  TIMEOUT
+  BAN
+}
+
+enum TimedActionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
 model HealthProbe {
   id        String   @id @default(cuid())
   message   String   @default("ok")
@@ -73,6 +84,8 @@ model Guild {
   updatedAt           DateTime             @updatedAt
   allowlistedGuild    AllowlistedGuild?
   permissionOverrides PermissionOverride[]
+  warnings            Warning[]
+  timedActions        TimedAction[]
 }
 
 model AllowlistedGuild {
@@ -97,4 +110,33 @@ model PermissionOverride {
   @@index([guildId, command])
   @@index([guildId, subjectType, subjectId])
   @@index([guildId, subjectType, allow, command])
+}
+
+model Warning {
+  id          String   @id @default(cuid())
+  guildId     String
+  userId      String
+  moderatorId String
+  reason      String
+  createdAt   DateTime @default(now())
+  guild       Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@index([guildId, userId])
+  @@index([guildId, userId, createdAt])
+  @@index([guildId, createdAt])
+}
+
+model TimedAction {
+  id         String           @id @default(cuid())
+  guildId    String
+  userId     String
+  actionType TimedActionType
+  expiresAt  DateTime
+  status     TimedActionStatus
+  createdAt  DateTime         @default(now())
+  guild      Guild            @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+  @@index([guildId, userId])
+  @@index([guildId, status, expiresAt])
+  @@index([guildId, actionType, status])
 }
