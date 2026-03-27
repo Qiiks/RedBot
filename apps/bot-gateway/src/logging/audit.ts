@@ -1,7 +1,7 @@
 import { db } from "@redbot/db";
-import type { AuditCategory, Prisma } from "@prisma/client";
 
-type AuditMetadata = Prisma.InputJsonValue;
+type AuditCategory = "MODERATION" | "MEMBER" | "SERVER" | "MESSAGE";
+type AuditMetadata = Parameters<typeof db.auditEvent.create>[0]["data"]["metadata"];
 
 export type EmitAuditEventInput = {
   guildId: string;

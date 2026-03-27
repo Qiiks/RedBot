@@ -30,6 +30,11 @@ enum AuditCategory {
   MESSAGE
 }
 
+enum MusicQueueFairness {
+  FIFO
+  ROUND_ROBIN
+}
+
 model HealthProbe {
   id        String   @id @default(cuid())
   message   String   @default("ok")
@@ -104,6 +109,8 @@ model GuildSettings {
   logChannelId            String?
   contentSnapshotsEnabled Boolean  @default(false)
   logRetentionDays        Int      @default(180)
+  musicQueueFairness      MusicQueueFairness @default(ROUND_ROBIN)
+  musicIdleTimeoutMs      Int      @default(300000)
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
   guild                   Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
