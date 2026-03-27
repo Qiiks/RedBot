@@ -16,6 +16,7 @@ Use this table when filling Coolify env vars.
 | `DATABASE_URL` | Coolify PostgreSQL service credentials/internal URL | Web, Bot, Worker |
 | `REDIS_HOST` | Coolify Redis service hostname | Web, Bot, Worker |
 | `REDIS_PORT` | Coolify Redis port (`6379` by default) | Web, Bot, Worker |
+| `REDIS_URL` | Full Redis/Redis TLS URL (e.g. `redis://...` or `rediss://...`) | Web, Bot, Worker |
 | `DISCORD_BOT_TOKEN` | Discord Developer Portal → App → **Bot** → Token | Bot |
 | `AUTH_DISCORD_ID` | Discord Developer Portal → App → **OAuth2** → Client ID | Web |
 | `AUTH_DISCORD_SECRET` | Discord Developer Portal → App → **OAuth2** → Client Secret | Web |
@@ -50,6 +51,12 @@ Use this table when filling Coolify env vars.
 ### `REDIS_PORT`
 - **Used by:** web server actions, bot, worker (cache/queue/event bus)
 - **Get it from:** Coolify Redis service hostname + port (`6379` by default)
+
+### `REDIS_URL`
+- **Used by:** web server actions, bot, worker (preferred when set)
+- **Format:** `redis://HOST:PORT` or `rediss://USER:PASSWORD@HOST:PORT/DB`
+- **Priority:** when `REDIS_URL` is set, services use it instead of `REDIS_HOST`/`REDIS_PORT`
+- **Use case:** managed Redis with TLS (`rediss://`)
 
 ## Discord Bot
 
@@ -119,7 +126,7 @@ openssl rand -base64 32
 ## 2) Optional Variables
 
 ### `REDIS_URL`
-- Optional convenience value for future tooling; current code uses host/port.
+- Not optional if your provider only exposes Redis via URL/TLS. Otherwise optional.
 
 ### `OPS_ALERT_CHANNEL_ID`
 - Reserved for future ops routing.

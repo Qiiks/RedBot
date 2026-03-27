@@ -1,5 +1,5 @@
 import { db } from "@redbot/db";
-import { createLogger } from "@redbot/shared";
+import { createLogger, getRedisConnectionConfig } from "@redbot/shared";
 import { Worker } from "bullmq";
 import { registerProcessAlertHandlers, sendCriticalAlert } from "./logging/alerts";
 
@@ -12,10 +12,7 @@ type TimedActionJobData = {
   actionType: "TIMEOUT" | "BAN";
 };
 
-const connection = {
-  host: process.env.REDIS_HOST ?? "127.0.0.1",
-  port: Number(process.env.REDIS_PORT ?? 6379)
-};
+const connection = getRedisConnectionConfig();
 
 registerProcessAlertHandlers("worker");
 

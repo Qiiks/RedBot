@@ -1,11 +1,9 @@
 import { db } from "@redbot/db";
+import { getRedisConnectionConfig } from "@redbot/shared";
 import { Queue } from "bullmq";
 
 const timedActionsQueue = new Queue("timed-actions-queue", {
-  connection: {
-    host: process.env.REDIS_HOST ?? "127.0.0.1",
-    port: Number(process.env.REDIS_PORT ?? 6379)
-  }
+  connection: getRedisConnectionConfig()
 });
 
 const WARNING_DECAY_WINDOW_DAYS = 7;

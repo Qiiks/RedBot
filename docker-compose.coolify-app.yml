@@ -10,6 +10,7 @@ services:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: 3000
       DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL:-}
       REDIS_HOST: ${REDIS_HOST}
       REDIS_PORT: ${REDIS_PORT:-6379}
       AUTH_DISCORD_ID: ${AUTH_DISCORD_ID}
@@ -28,6 +29,7 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL:-}
       REDIS_HOST: ${REDIS_HOST}
       REDIS_PORT: ${REDIS_PORT:-6379}
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
@@ -45,6 +47,7 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL:-}
       REDIS_HOST: ${REDIS_HOST}
       REDIS_PORT: ${REDIS_PORT:-6379}
       CRITICAL_ALERT_WEBHOOK_URL: ${CRITICAL_ALERT_WEBHOOK_URL:-}

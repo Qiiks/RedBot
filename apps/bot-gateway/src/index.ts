@@ -1,5 +1,5 @@
 import { db } from "@redbot/db";
-import { createLogger } from "@redbot/shared";
+import { createLogger, getRedisConnectionConfig } from "@redbot/shared";
 import { Client, GatewayIntentBits } from "discord.js";
 import Redis from "ioredis";
 import { registerCommandRouter } from "./commands/router";
@@ -23,8 +23,7 @@ registerEventRouter(client);
 registerProcessAlertHandlers("bot-gateway");
 
 const redisSubscriber = new Redis({
-  host: process.env.REDIS_HOST ?? "127.0.0.1",
-  port: Number(process.env.REDIS_PORT ?? 6379),
+  ...getRedisConnectionConfig(),
   lazyConnect: true,
   maxRetriesPerRequest: 1,
   enableReadyCheck: true

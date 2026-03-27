@@ -1,4 +1,5 @@
 import { db } from "@redbot/db";
+import { getRedisConnectionConfig } from "@redbot/shared";
 import Redis from "ioredis";
 
 export type DiscordPermissionCheck = () => boolean | Promise<boolean>;
@@ -26,8 +27,7 @@ export type RbacEvaluationResult = {
 const DEFAULT_TTL_SECONDS = 60;
 
 const redis = new Redis({
-  host: process.env.REDIS_HOST ?? "127.0.0.1",
-  port: Number(process.env.REDIS_PORT ?? 6379),
+  ...getRedisConnectionConfig(),
   lazyConnect: true,
   maxRetriesPerRequest: 1,
   enableReadyCheck: true

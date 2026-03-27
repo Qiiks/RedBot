@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { getManageableGuildsForUser } from "@/lib/discord-guilds";
 import { db } from "@redbot/db";
+import { getRedisConnectionConfig } from "@redbot/shared";
 import Redis from "ioredis";
 import { redirect } from "next/navigation";
 
@@ -10,8 +11,7 @@ const ALLOWED_QUEUE_FAIRNESS = new Set(["FIFO", "ROUND_ROBIN"] as const);
 
 function getRedisPublisher(): Redis {
   return new Redis({
-    host: process.env.REDIS_HOST ?? "127.0.0.1",
-    port: Number(process.env.REDIS_PORT ?? 6379),
+    ...getRedisConnectionConfig(),
     lazyConnect: true,
     maxRetriesPerRequest: 1,
     enableReadyCheck: true
